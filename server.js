@@ -17,7 +17,7 @@ io.use((socket, next) => {
 });
  
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.callerId}`);
+  console.log(`User connected: ${socket.data.user}`);
 
   socket.join(socket.user);
 
