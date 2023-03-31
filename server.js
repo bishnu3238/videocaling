@@ -6,11 +6,7 @@ const {Server} = require("socket.io");
 const httpServer = createServer(app);
 const io = new Server(httpServer);
 
-
-
-
 const port = process.env.PORT || 3000;
-
 
 io.use((socket, next) => {
   if (socket.handshake.query) {
@@ -19,13 +15,9 @@ io.use((socket, next) => {
     next();
   }
 });
-
-
-
-
  
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`);
+  console.log(`User connected: ${socket.callerId}`);
 
   socket.join(socket.user);
 
@@ -41,17 +33,7 @@ io.on('connection', (socket) => {
     });
   });
 
-
-
-
-
-  // socket.on('offer', (offer) => {
-  //   console.log(`Received offer from user ${socket.id}: ${offer}`);
-  //   socket.broadcast.emit('offer', offer);
-  // });
-  
-
-  socket.on("callAnswered", (data) => {
+  socket.on("answerCall", (data) => {
     let callerId = data.callerId;
     let sdpAnswer = data.sdpAnswer;
 
@@ -63,14 +45,6 @@ io.on('connection', (socket) => {
     });
   });
 
-
-  // socket.on('answer', (answer) => {
-  //   console.log(`Received answer from user ${socket.id}: ${answer}`);
-  //   socket.broadcast.emit('answer', answer);
-  // });
-
-
-  
   socket.on("IceCandidate", (data) => {
     let calleeId = data.calleeId;
     let iceCandidate = data.iceCandidate;
@@ -82,12 +56,7 @@ io.on('connection', (socket) => {
       iceCandidate: iceCandidate,
     });
   });
-  
-  // socket.on('ice-candidate', (candidate) => {
-  //   console.log(`Received ICE candidate from user ${socket.id}: ${candidate}`);
-  //   socket.broadcast.emit('ice-candidate', candidate);
-  // });
-  
+
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
   });
