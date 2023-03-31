@@ -41,13 +41,17 @@ io.on('connection', (socket) => {
     });
   });
 
+
+
+
+
   // socket.on('offer', (offer) => {
   //   console.log(`Received offer from user ${socket.id}: ${offer}`);
   //   socket.broadcast.emit('offer', offer);
   // });
   
 
-  socket.on("answerCall", (data) => {
+  socket.on("callAnswered", (data) => {
     let callerId = data.callerId;
     let sdpAnswer = data.sdpAnswer;
 
