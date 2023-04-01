@@ -17,7 +17,7 @@ io.use((socket, next) => {
 });
  
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.data.user}`);
+  console.log(`User connected: ${socket.id}`);
 
   socket.join(socket.user);
 
@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
     let calleeId = data.calleeId;
     let sdpOffer = data.sdpOffer;
 
-    console.log(`Received answer from user ${data.callerId}: ${data.sdpOffer}`);
+    console.log(`Call Request from user ${data.calleeId}: ${data.sdpOffer}`);
 
     socket.to(calleeId).emit("newCall", {
       callerId: socket.user,
