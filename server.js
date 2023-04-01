@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
     let calleeId = data.calleeId;
     let sdpOffer = data.sdpOffer;
 
-    console.log(`Call Request from user ${data.calleeId}: ${data.sdpOffer}`);
+    console.log(`Call Requested from ${socket.id} for user ${data.calleeId}: ${data.sdpOffer}`);
 
     socket.to(calleeId).emit("newCall", {
       callerId: socket.user,
