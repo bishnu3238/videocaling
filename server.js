@@ -1,8 +1,8 @@
 
 const express = require("express");
-const {createServer} = require("http");
+const { createServer } = require("http");
 const app = express();
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 const httpServer = createServer(app);
 const io = new Server(httpServer);
 
@@ -11,12 +11,18 @@ const port = process.env.PORT || 3000;
 io.use((socket, next) => {
   if (socket.handshake.query) {
     let callerId = socket.handshake.query.callerId;
-    socket.user = callerId;
-    next();
+    if (callerId) {
+      socket.user = callerId;
+      next();
+    } else {
+      next(new Error("Missing caller ID"));
+    }
+  } else {
+    next(new Error("Missing query parameters"));
   }
 });
- 
-io.on('connection', (socket) => {
+
+io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   socket.join(socket.user);
@@ -25,48 +31,180 @@ io.on('connection', (socket) => {
     let calleeId = data.calleeId;
     let sdpOffer = data.sdpOffer;
 
-    console.log(`Call Requested from ${socket.id} for user ${data.calleeId}: ${data.sdpOffer}`);
+    if (!calleeId) {
+      socket.emit("callError", {
+        message: "Missing callee ID",
+      });
+    } else if (!sdpOffer) {
+      socket.emit("callError", {
+        message: "Missing SDP offer",
+      });
+    } else {
+      console.log(`Call Requested from ${socket.id} for user ${data.calleeId}: ${data.sdpOffer}`);
 
-    socket.to(calleeId).emit("newCall", {
-      callerId: socket.user,
-      sdpOffer: sdpOffer,
-    });
+      socket.to(calleeId).emit("newCall", {
+        callerId: socket.user,
+        sdpOffer: sdpOffer,
+      });
+    }
   });
 
   socket.on("answerCall", (data) => {
     let callerId = data.callerId;
     let sdpAnswer = data.sdpAnswer;
 
-    console.log(`Received answer from user ${data.callerId}: ${data.sdpAnswer}`);
+    if (!callerId) {
+      socket.emit("callError", {
+        message: "Missing caller ID",
+      });
+    } else if (!sdpAnswer) {
+      socket.emit("callError", {
+        message: "Missing SDP answer",
+      });
+    } else {
+      console.log(`Received answer from user ${data.callerId}: ${data.sdpAnswer}`);
 
-    socket.to(callerId).emit("callAnswered", {
-      callee: socket.user,
-      sdpAnswer: sdpAnswer,
-    });
+      socket.to(callerId).emit("callAnswered", {
+        callee: socket.user,
+        sdpAnswer: sdpAnswer,
+      });
+    }
   });
 
   socket.on("IceCandidate", (data) => {
     let calleeId = data.calleeId;
     let iceCandidate = data.iceCandidate;
 
-    console.log(`Received ICE candidate from user ${socket.id}: ${data.iceCandidate} and [${data}]`);
+    if (!calleeId) {
+      socket.emit("callError", {
+        message: "Missing callee ID",
+      });
+    } else if (!iceCandidate) {
+      socket.emit("callError", {
+        message: "Missing ICE candidate",
+      });
+    } else {
+      console.log(`Received ICE candidate from user ${socket.id}: ${data.iceCandidate} and [${data}]`);
 
-    socket.to(calleeId).emit("IceCandidate", {
-      sender: socket.user,
-      iceCandidate: iceCandidate,
-    });
+      socket.to(calleeId).emit("IceCandidate", {
+        sender: socket.user,
+        iceCandidate: iceCandidate,
+      });
+    }
   });
 
-  socket.on('disconnect', () => {
+  socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
 
-
-
 httpServer.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const express = require("express");
+// const {createServer} = require("http");
+// const app = express();
+// const {Server} = require("socket.io");
+// const httpServer = createServer(app);
+// const io = new Server(httpServer);
+
+// const port = process.env.PORT || 3000;
+
+// io.use((socket, next) => {
+//   if (socket.handshake.query) {
+//     let callerId = socket.handshake.query.callerId;
+//     socket.user = callerId;
+//     next();
+//   }
+// });
+ 
+// io.on('connection', (socket) => {
+//   console.log(`User connected: ${socket.id}`);
+
+//   socket.join(socket.user);
+
+//   socket.on("makeCall", (data) => {
+//     let calleeId = data.calleeId;
+//     let sdpOffer = data.sdpOffer;
+
+//     console.log(`Call Requested from ${socket.id} for user ${data.calleeId}: ${data.sdpOffer}`);
+
+//     socket.to(calleeId).emit("newCall", {
+//       callerId: socket.user,
+//       sdpOffer: sdpOffer,
+//     });
+//   });
+
+//   socket.on("answerCall", (data) => {
+//     let callerId = data.callerId;
+//     let sdpAnswer = data.sdpAnswer;
+
+//     console.log(`Received answer from user ${data.callerId}: ${data.sdpAnswer}`);
+
+//     socket.to(callerId).emit("callAnswered", {
+//       callee: socket.user,
+//       sdpAnswer: sdpAnswer,
+//     });
+//   });
+
+//   socket.on("IceCandidate", (data) => {
+//     let calleeId = data.calleeId;
+//     let iceCandidate = data.iceCandidate;
+
+//     console.log(`Received ICE candidate from user ${socket.id}: ${data.iceCandidate} and [${data}]`);
+
+//     socket.to(calleeId).emit("IceCandidate", {
+//       sender: socket.user,
+//       iceCandidate: iceCandidate,
+//     });
+//   });
+
+//   socket.on('disconnect', () => {
+//     console.log(`User disconnected: ${socket.id}`);
+//   });
+// });
+
+
+
+// httpServer.listen(port, () => {
+//   console.log(`Server listening on port ${port}`);
+// });
 
 
 
