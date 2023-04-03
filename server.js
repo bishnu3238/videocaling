@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
     } else {
       console.log(`Received answer from user ${data.callerId}: ${data.sdpAnswer}`);
 
-      socket.to(callerId).emit("callAnswered", {
+      socket.broadcast.emit("callAnswered", {
         callee: socket.user,
         sdpAnswer: sdpAnswer,
       });
@@ -86,7 +86,7 @@ io.on("connection", (socket) => {
     } else {
       console.log(`Received ICE candidate from user ${socket.id}: ${data.iceCandidate} and [${data}]`);
 
-      socket.to(calleeId).emit("IceCandidate", {
+      socket.broadcast.emit("IceCandidate", {
         sender: socket.user,
         iceCandidate: iceCandidate,
       });
