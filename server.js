@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     } else {
       console.log(`Call Requested from ${socket.id} for user ${data.calleeId}: ${data.sdpOffer}`);
 
-      socket.to(calleeId).emit("newCall", {
+      socket.broadcast.emit("newCall", {
         callerId: socket.user,
         sdpOffer: sdpOffer,
       });
