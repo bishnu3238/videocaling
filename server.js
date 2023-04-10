@@ -29,6 +29,8 @@ io.on("connection", (socket) => {
 
   socket.on("makeCall", (data) => {
     let calleeId = data.calleeId;
+    let calleeName = data.calleeName;
+    let calleeType = data.calleeType;
     let sdpOffer = data.sdpOffer;
 
     if (!calleeId) {
@@ -44,6 +46,7 @@ io.on("connection", (socket) => {
 
       socket.broadcast.emit("newCall", {
         callerId: socket.user,
+//         callerName: data.calleeName
         sdpOffer: sdpOffer,
       });
     }
