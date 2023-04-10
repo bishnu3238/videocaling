@@ -97,6 +97,8 @@ io.on("connection", (socket) => {
   });
   
   socket.on('endCall', () => {
+          console.log(`call ended`);
+
   // Broadcast to all users that the call has ended
   socket.broadcast.emit('callEnded');
 });
