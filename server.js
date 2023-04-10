@@ -95,6 +95,16 @@ io.on("connection", (socket) => {
       });
     }
   });
+  
+  socket.on('endCall', () => {
+  // Broadcast to all users that the call has ended
+  socket.broadcast.emit('callEnded');
+});
+
+  
+  
+  
+  
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
